@@ -1,0 +1,16 @@
+{
+  "name": "data-analytics-case-comp-2026",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "setup:backend": "python3 -m venv .venv && .venv/bin/pip install -r backend/requirements.txt",
+    "setup:frontend": "npm install --prefix frontend",
+    "setup": "npm run setup:backend && npm run setup:frontend",
+    "etl": ".venv/bin/python -m backend.etl.load_oecd",
+    "dev:backend": ".venv/bin/uvicorn backend.app.main:app --host 127.0.0.1 --port 8000",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "test:backend": ".venv/bin/pytest backend/tests",
+    "test:frontend": "npm run test --prefix frontend",
+    "build:frontend": "npm run build --prefix frontend"
+  }
+}

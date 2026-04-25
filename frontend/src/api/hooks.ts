@@ -1,0 +1,55 @@
+import useSWR from "swr";
+
+import { postApi } from "./client";
+import type {
+  DashboardFilters,
+  GeographyItem,
+  Metadata,
+  ProjectSearchResponse,
+  RankingResponse,
+  Summary,
+} from "./types";
+
+function swrPostKey(path: string, body: unknown) {
+  return [path, JSON.stringify(body)] as const;
+}
+
+function usePost<T>(path: string, body: unknown) {
+  return useSWR(swrPostKey(path, body), ([url]) => postApi<T>(url, body), {
+    keepPreviousData: true,
+  });
+}
+
+export function useMetadata() {
+  return useSWR<Metadata>("/metadata");
+}
+
+export function useDashboardData(filters: DashboardFilters) {
+  const summary = usePost<Summary>("/summary", filters);
+  const geography = usePost<{ items: GeographyItem[] }>("/geography", filters);
+  const donors = usePost<RankingResponse>("/rankings", {
+    ...filters,
+    groupBy: "organization_name",
+    grain: "project",
+    limit: 12,
+  });
+  const recipients = usePost<RankingResponse>("/rankings", {
+    ...filters,
+    groupBy: "country",
+    grain: "project",
+    limit: 12,
+  });
+  const sectors = usePost<RankingResponse>("/rankings", {
+    ...filters,
+    groupBy: "sector_description",
+    grain: "sector",
+    limit: 12,
+  });
+  const projects = usePost<ProjectSearchResponse>("/projects/search", {
+    ...filters,
+    limit: 20,
+    offset: 0,
+  });
+
+  return { summary, geography, donors, recipients, sectors, projects };
+}

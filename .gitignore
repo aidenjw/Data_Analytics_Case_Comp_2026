@@ -1,5 +1,10 @@
 .DS_Store
 
+# Local secrets
+.env
+.env.*
+!.env.example
+
 # Python
 .venv/
 __pycache__/
@@ -16,9 +21,11 @@ frontend/vite.config.d.ts
 
 # Local generated data
 data/warehouse/
+data/supabase/*.csv
 *.duckdb
 *.duckdb.wal
 
 # Local exports and scratch
 exports/
 .cache/
+.tools/

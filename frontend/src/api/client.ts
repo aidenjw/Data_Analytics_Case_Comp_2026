@@ -1,4 +1,4 @@
-import type { DashboardFilters } from "./types";
+import type { AskResponse, DashboardFilters } from "./types";
 
 const API_BASE = "/api";
 
@@ -37,3 +37,7 @@ export const emptyFilters: DashboardFilters = {
   metric: "disbursements",
   searchText: null,
 };
+
+export async function askDataQuestion(question: string) {
+  return postApi<AskResponse>("/ask", { question });
+}

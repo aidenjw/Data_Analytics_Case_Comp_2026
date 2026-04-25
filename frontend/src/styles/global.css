@@ -494,15 +494,23 @@ h1 {
   position: relative;
   display: grid;
   gap: 0.7rem;
-  min-height: 330px;
+  min-height: 380px;
 }
 
-.map-wrap svg {
+.country-map {
   width: 100%;
-  height: auto;
+  min-height: 330px;
   background: #09272d;
   border: 1px solid var(--line);
   border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.map-loading {
+  display: grid;
+  min-height: 330px;
+  place-items: center;
+  color: var(--muted);
 }
 
 .map-caption {
@@ -546,6 +554,121 @@ h1 {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.ask-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.ask-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: end;
+}
+
+.ask-form label {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--muted);
+}
+
+.ask-form input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 0.8rem;
+  color: var(--text);
+  background: #09272d;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.ask-form button,
+.ask-answer button,
+.ask-examples button {
+  color: var(--text);
+  background: #0b2a30;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.ask-form button {
+  min-height: 44px;
+  padding: 0 0.95rem;
+  color: #052326;
+  background: var(--accent);
+  font-weight: 800;
+}
+
+.ask-form button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.ask-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.ask-examples button {
+  padding: 0.45rem 0.6rem;
+  color: var(--muted);
+}
+
+.ask-answer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ask-answer p {
+  margin: 0;
+  color: #dff7f3;
+}
+
+.ask-answer button {
+  flex: 0 0 auto;
+  padding: 0.55rem 0.75rem;
+}
+
+.interpretation-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.interpretation-list span {
+  padding: 0.35rem 0.5rem;
+  color: var(--muted);
+  background: #0b2a30;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.context-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.context-list article {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: #0b2a30;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.context-list p {
+  margin: 0;
+  color: var(--muted);
 }
 
 .table-shell {
@@ -661,8 +784,14 @@ td {
   .kpi-grid,
   .ranking-list.horizontal,
   .shortcut-grid,
-  .map-fallback-list {
+  .map-fallback-list,
+  .ask-form {
     grid-template-columns: 1fr;
+  }
+
+  .ask-answer {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .ranking-row {

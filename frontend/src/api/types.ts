@@ -96,3 +96,21 @@ export type ProjectSearchResponse = {
   limit: number;
   offset: number;
 };
+
+export type AskResponse = {
+  question: string;
+  answer: string;
+  chartType: "bar" | "line" | "map" | "table";
+  plan: {
+    intent: "ranking" | "trend" | "geography" | "project_search";
+    metric: Metric;
+    groupBy: string;
+    grain: "project" | "sector";
+    filters: DashboardFilters;
+    confidence: number;
+    planner: "openai";
+  };
+  interpretation: string[];
+  context: Array<{ title: string; body: string }>;
+  items: Array<RankingItem | GeographyItem | ProjectRow | { label: string; amount: number; project_count: number }>;
+};

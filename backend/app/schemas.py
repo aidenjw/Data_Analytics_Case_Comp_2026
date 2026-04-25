@@ -48,3 +48,7 @@ class GroupedRequest(FilterRequest):
 class ProjectSearchRequest(FilterRequest):
     limit: int = Field(default=25, ge=1, le=100)
     offset: int = Field(default=0, ge=0)
+
+
+class AskRequest(BaseModel):
+    question: str = Field(min_length=3, max_length=500)

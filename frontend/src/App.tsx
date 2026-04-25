@@ -1,9 +1,10 @@
 import { lazy, Suspense, useDeferredValue, useMemo, useReducer, useState, useTransition } from "react";
+import type { FormEvent } from "react";
 import { AlertCircle, Database, Filter, Globe2, RotateCcw } from "lucide-react";
 
-import { emptyFilters } from "./api/client";
+import { askDataQuestion, emptyFilters } from "./api/client";
 import { useDashboardData, useMetadata } from "./api/hooks";
-import type { DashboardFilters, Metric, RankingItem } from "./api/types";
+import type { AskResponse, DashboardFilters, GeographyItem, Metric, ProjectRow, RankingItem } from "./api/types";
 import { FilterRail } from "./components/layout/FilterRail";
 import { KpiCard } from "./components/layout/KpiCard";
 import { RankingList } from "./components/charts/RankingList";
@@ -15,7 +16,7 @@ import { questionShortcuts } from "./lib/shortcuts";
 const TrendChart = lazy(() => import("./components/charts/TrendChart"));
 const WorldFundingMap = lazy(() => import("./components/maps/WorldFundingMap"));
 
-const tabs = ["Overview", "Geography", "Sectors", "Donors", "Projects", "Methodology"] as const;
+const tabs = ["Overview", "Geography", "Sectors", "Donors", "Projects", "Ask Data", "Methodology"] as const;
 type Tab = (typeof tabs)[number];
 
 function App() {
@@ -71,8 +72,11 @@ function App() {
   }
 
   function applyShortcut(apply: (filters: DashboardFilters) => DashboardFilters) {
+    applyFilters(apply(filters));
+  }
+
+  function applyFilters(next: DashboardFilters) {
     startTransition(() => {
-      const next = apply(filters);
       dispatch({ type: "reset" });
       for (const year of next.years) dispatch({ type: "toggle", key: "years", value: year });
       for (const donor of next.donorCountries) dispatch({ type: "toggle", key: "donorCountries", value: donor });
@@ -253,6 +257,8 @@ function App() {
             </Panel>
           ) : null}
 
+          {activeTab === "Ask Data" ? <AskData onApplyFilters={applyFilters} /> : null}
+
           {activeTab === "Methodology" ? <Methodology notes={metadata.data?.dataNotes ?? []} /> : null}
         </section>
       </main>
@@ -373,6 +379,126 @@ function Methodology({ notes }: { notes: string[] }) {
       </p>
     </section>
   );
+}
+
+function AskData({ onApplyFilters }: { onApplyFilters: (filters: DashboardFilters) => void }) {
+  const [question, setQuestion] = useState("Which countries got the most climate funding from UK donors?");
+  const [result, setResult] = useState<AskResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isAsking, setIsAsking] = useState(false);
+
+  async function submitQuestion(event: FormEvent) {
+    event.preventDefault();
+    if (!question.trim()) return;
+    setIsAsking(true);
+    setError(null);
+    try {
+      setResult(await askDataQuestion(question));
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Question failed");
+    } finally {
+      setIsAsking(false);
+    }
+  }
+
+  const examples = [
+    "Which countries got the most climate funding from UK donors?",
+    "How did nutrition funding change over time?",
+    "Show projects about maternal health in India",
+    "What sectors received the most funding in 2023?",
+  ];
+
+  return (
+    <section className="ask-grid">
+      <Panel title="Ask a data question" wide>
+        <form className="ask-form" onSubmit={submitQuestion}>
+          <label>
+            <span>Question</span>
+            <input value={question} onChange={(event) => setQuestion(event.target.value)} />
+          </label>
+          <button type="submit" disabled={isAsking}>
+            {isAsking ? "Thinking..." : "Generate answer"}
+          </button>
+        </form>
+        <div className="ask-examples">
+          {examples.map((example) => (
+            <button key={example} onClick={() => setQuestion(example)}>
+              {example}
+            </button>
+          ))}
+        </div>
+      </Panel>
+
+      {error ? (
+        <div className="error-banner" role="alert">
+          <AlertCircle size={18} />
+          {error}
+        </div>
+      ) : null}
+
+      {result ? (
+        <>
+          <Panel title="Answer" wide>
+            <div className="ask-answer">
+              <p>{result.answer}</p>
+              <button onClick={() => onApplyFilters(result.plan.filters)}>Apply interpreted filters</button>
+            </div>
+            <div className="interpretation-list">
+              {result.interpretation.map((item) => (
+                <span key={item}>{item}</span>
+              ))}
+              <span>Planner: OpenAI</span>
+              <span>Confidence: {Math.round(result.plan.confidence * 100)}%</span>
+            </div>
+          </Panel>
+
+          <Panel title="Generated view" wide>
+            <GeneratedAskVisual result={result} />
+          </Panel>
+
+          <Panel title="Retrieved context" wide>
+            <div className="context-list">
+              {result.context.length === 0 ? <p>No methodology context was needed for this question.</p> : null}
+              {result.context.map((item) => (
+                <article key={item.title}>
+                  <strong>{item.title}</strong>
+                  <p>{item.body}</p>
+                </article>
+              ))}
+            </div>
+          </Panel>
+        </>
+      ) : null}
+    </section>
+  );
+}
+
+function GeneratedAskVisual({ result }: { result: AskResponse }) {
+  if (result.chartType === "line") {
+    const data = (result.items as Array<{ label: string; amount: number }>).map((item) => ({
+      year: String(item.label),
+      amount: Number(item.amount ?? 0),
+    }));
+    return (
+      <Suspense fallback={<PanelSkeleton />}>
+        <TrendChart data={data} />
+      </Suspense>
+    );
+  }
+
+  if (result.chartType === "map") {
+    return (
+      <Suspense fallback={<PanelSkeleton />}>
+        <WorldFundingMap items={result.items as GeographyItem[]} />
+      </Suspense>
+    );
+  }
+
+  if (result.chartType === "table") {
+    return <ProjectsTable items={result.items as ProjectRow[]} />;
+  }
+
+  return <RankingList items={result.items as RankingItem[]} />;
 }
 
 export default App;

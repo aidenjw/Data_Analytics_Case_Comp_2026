@@ -96,3 +96,39 @@ export type ProjectSearchResponse = {
   limit: number;
   offset: number;
 };
+
+export type ChartType = "bar" | "line" | "map" | "kpi" | "table";
+export type ChartEndpoint = "rankings" | "trends" | "geography" | "summary" | "projects";
+
+export type GeneratedChartSpec = {
+  id: string;
+  title: string;
+  description: string;
+  chartType: ChartType;
+  endpoint: ChartEndpoint;
+  filters: DashboardFilters;
+  groupBy?: string | null;
+  grain: "project" | "sector";
+  limit: number;
+};
+
+export type GeneratedChart = {
+  spec: GeneratedChartSpec;
+  data: unknown;
+};
+
+export type PromptChartResponse = {
+  prompt: string;
+  spec: GeneratedChartSpec;
+  data: unknown;
+};
+
+export type PromptDashboardResponse = {
+  prompt: string;
+  dashboard: {
+    id: string;
+    title: string;
+    description: string;
+    cards: GeneratedChart[];
+  };
+};

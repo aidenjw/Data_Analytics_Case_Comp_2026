@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field
 
 Metric = Literal["disbursements", "commitments"]
 Grain = Literal["project", "sector"]
+ChartType = Literal["bar", "line", "map", "kpi", "table"]
+ChartEndpoint = Literal["rankings", "trends", "geography", "summary", "projects"]
 
 
 class MarkerFilters(BaseModel):
@@ -48,3 +50,20 @@ class GroupedRequest(FilterRequest):
 class ProjectSearchRequest(FilterRequest):
     limit: int = Field(default=25, ge=1, le=100)
     offset: int = Field(default=0, ge=0)
+
+
+class ChartSpec(BaseModel):
+    id: str
+    title: str
+    description: str
+    chartType: ChartType
+    endpoint: ChartEndpoint
+    filters: FilterRequest = Field(default_factory=FilterRequest)
+    groupBy: GroupedRequest.model_fields["groupBy"].annotation | None = None
+    grain: Grain = "project"
+    limit: int = Field(default=10, ge=1, le=100)
+
+
+class PromptRequest(BaseModel):
+    prompt: str = Field(min_length=3, max_length=500)
+    baseFilters: FilterRequest = Field(default_factory=FilterRequest)

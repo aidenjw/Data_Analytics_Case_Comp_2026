@@ -10,7 +10,8 @@ from .query_builder import (
     build_fact_where,
     filtered_project_cte,
 )
-from .schemas import FilterRequest, GroupedRequest, ProjectSearchRequest
+from .prompt_parser import parse_chart_prompt, parse_dashboard_prompt
+from .schemas import ChartSpec, FilterRequest, GroupedRequest, ProjectSearchRequest, PromptRequest
 
 app = FastAPI(title="OECD Philanthropy Dashboard API", version="0.1.0")
 
@@ -36,17 +37,7 @@ def row(query: str, params: list[object] | None = None) -> dict:
     return result[0] if result else {}
 
 
-@app.get("/health")
-def health() -> dict:
-    try:
-        stats = row("SELECT COUNT(*) AS rows FROM fact_activity_sector")
-        return {"status": "ok", "warehouse": "ready", "factRows": int(stats["rows"])}
-    except HTTPException:
-        return {"status": "setup_required", "warehouse": "missing", "factRows": 0}
-
-
-@app.get("/metadata")
-def metadata() -> dict:
+def metadata_catalog() -> dict[str, list[str]]:
     def distinct(column: str, limit: int = 500) -> list[str]:
         data = rows(
             f"""
@@ -61,15 +52,6 @@ def metadata() -> dict:
         )
         return [item["value"] for item in data]
 
-    stats = row(
-        """
-        SELECT
-            (SELECT COUNT(*) FROM fact_activity_sector) AS sector_rows,
-            (SELECT COUNT(*) FROM v_project_amounts) AS projects,
-            (SELECT SUM(usd_disbursements_project_est) FROM v_project_amounts) AS project_disbursements,
-            (SELECT SUM(usd_commitment_project_est) FROM v_project_amounts) AS project_commitments
-        """
-    )
     return {
         "years": distinct("year", 20),
         "donorCountries": distinct("donor_country"),
@@ -80,6 +62,32 @@ def metadata() -> dict:
         "sectors": distinct("sector_description"),
         "subsectors": distinct("subsector_description"),
         "flowTypes": distinct("type_of_flow", 20),
+    }
+
+
+@app.get("/health")
+def health() -> dict:
+    try:
+        stats = row("SELECT COUNT(*) AS rows FROM fact_activity_sector")
+        return {"status": "ok", "warehouse": "ready", "factRows": int(stats["rows"])}
+    except HTTPException:
+        return {"status": "setup_required", "warehouse": "missing", "factRows": 0}
+
+
+@app.get("/metadata")
+def metadata() -> dict:
+    catalog = metadata_catalog()
+    stats = row(
+        """
+        SELECT
+            (SELECT COUNT(*) FROM fact_activity_sector) AS sector_rows,
+            (SELECT COUNT(*) FROM v_project_amounts) AS projects,
+            (SELECT SUM(usd_disbursements_project_est) FROM v_project_amounts) AS project_disbursements,
+            (SELECT SUM(usd_commitment_project_est) FROM v_project_amounts) AS project_commitments
+        """
+    )
+    return {
+        **catalog,
         "metrics": [
             {
                 "id": "disbursements",
@@ -303,3 +311,54 @@ def project_detail(project_key: str) -> dict:
         [project_key],
     )
     return {"project": project, "sectorRows": sectors}
+
+
+def execute_chart_spec(spec: ChartSpec) -> dict:
+    if spec.endpoint == "summary":
+        return summary(spec.filters)
+    if spec.endpoint == "geography":
+        return geography(spec.filters)
+    if spec.endpoint == "projects":
+        return project_search(
+            ProjectSearchRequest.model_validate(
+                {**spec.filters.model_dump(), "limit": spec.limit, "offset": 0}
+            )
+        )
+
+    payload = {
+        **spec.filters.model_dump(),
+        "groupBy": spec.groupBy or "year",
+        "grain": spec.grain,
+        "limit": spec.limit,
+    }
+    request = GroupedRequest.model_validate(payload)
+    if spec.endpoint == "trends":
+        return trends(request)
+    return rankings(request)
+
+
+@app.post("/prompt/chart")
+def prompt_chart(request: PromptRequest) -> dict:
+    spec = parse_chart_prompt(request.prompt, request.baseFilters, metadata_catalog())
+    return {
+        "prompt": request.prompt,
+        "spec": spec.model_dump(),
+        "data": execute_chart_spec(spec),
+    }
+
+
+@app.post("/prompt/dashboard")
+def prompt_dashboard(request: PromptRequest) -> dict:
+    dashboard = parse_dashboard_prompt(request.prompt, request.baseFilters, metadata_catalog())
+    cards = []
+    for spec in dashboard["cards"]:
+        cards.append({"spec": spec.model_dump(), "data": execute_chart_spec(spec)})
+    return {
+        "prompt": request.prompt,
+        "dashboard": {
+            "id": dashboard["id"],
+            "title": dashboard["title"],
+            "description": dashboard["description"],
+            "cards": cards,
+        },
+    }

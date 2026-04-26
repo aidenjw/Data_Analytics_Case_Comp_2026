@@ -5,6 +5,8 @@ import type {
   DashboardFilters,
   GeographyItem,
   Metadata,
+  PromptChartResponse,
+  PromptDashboardResponse,
   ProjectSearchResponse,
   RankingResponse,
   Summary,
@@ -52,4 +54,12 @@ export function useDashboardData(filters: DashboardFilters) {
   });
 
   return { summary, geography, donors, recipients, sectors, projects };
+}
+
+export function generatePromptChart(prompt: string, baseFilters: DashboardFilters) {
+  return postApi<PromptChartResponse>("/prompt/chart", { prompt, baseFilters });
+}
+
+export function generatePromptDashboard(prompt: string, baseFilters: DashboardFilters) {
+  return postApi<PromptDashboardResponse>("/prompt/dashboard", { prompt, baseFilters });
 }

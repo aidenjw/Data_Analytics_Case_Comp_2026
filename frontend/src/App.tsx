@@ -8,6 +8,7 @@ import { FilterRail } from "./components/layout/FilterRail";
 import { KpiCard } from "./components/layout/KpiCard";
 import { RankingList } from "./components/charts/RankingList";
 import { ProjectsTable } from "./components/tables/ProjectsTable";
+import { PromptLab } from "./features/PromptLab";
 import { activeFilterCount, filterReducer } from "./lib/filters";
 import { formatCount, formatMoney } from "./lib/formatters";
 import { questionShortcuts } from "./lib/shortcuts";
@@ -15,7 +16,7 @@ import { questionShortcuts } from "./lib/shortcuts";
 const TrendChart = lazy(() => import("./components/charts/TrendChart"));
 const WorldFundingMap = lazy(() => import("./components/maps/WorldFundingMap"));
 
-const tabs = ["Overview", "Geography", "Sectors", "Donors", "Projects", "Methodology"] as const;
+const tabs = ["Overview", "Geography", "Sectors", "Donors", "Projects", "Custom", "Methodology"] as const;
 type Tab = (typeof tabs)[number];
 
 function App() {
@@ -252,6 +253,8 @@ function App() {
               <ProjectsTable items={projectItems} />
             </Panel>
           ) : null}
+
+          {activeTab === "Custom" ? <PromptLab baseFilters={filters} /> : null}
 
           {activeTab === "Methodology" ? <Methodology notes={metadata.data?.dataNotes ?? []} /> : null}
         </section>

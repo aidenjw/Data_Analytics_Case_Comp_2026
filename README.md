@@ -9,6 +9,14 @@ Local full-stack dashboard for exploring OECD private philanthropy funding patte
 - `data/raw/OECD Dataset.xlsx`: local source workbook used by the ETL.
 - `data/warehouse/oecd.duckdb`: generated local warehouse after running the ETL.
 
+## Prompt features
+
+The `Custom` tab supports local prompt-driven analysis without sending data to an external model.
+
+- `Generate chart` turns prompts such as `Show top 10 donors for infectious disease funding in India` into a validated chart spec and renders the result immediately.
+- `Build dashboard` turns prompts such as `Create a one page dashboard about climate funding since 2021` into a one-page dashboard with KPI, trend, donor, recipient, and sector cards.
+- Generated specs are shown on the page so judges can see how the prompt was translated into safe filters and groupings.
+
 ## Local setup
 
 ```bash

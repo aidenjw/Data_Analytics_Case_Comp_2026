@@ -52,6 +52,7 @@ TEXT_COLUMNS = [
 ]
 
 NUMERIC_COLUMNS = ["usd_disbursements_defl", "usd_commitment_defl"]
+EXCLUDED_YEAR_VALUES = {"2020-2023"}
 
 
 def stable_project_key(row: pd.Series) -> str:
@@ -77,6 +78,8 @@ def clean_dataframe(workbook_path: Path) -> pd.DataFrame:
         if column in df.columns:
             df[column] = df[column].astype("string").str.strip()
             df[column] = df[column].where(df[column].notna(), None)
+
+    df = df[~df["year"].isin(EXCLUDED_YEAR_VALUES)].copy()
 
     for column in NUMERIC_COLUMNS:
         df[column] = pd.to_numeric(df[column], errors="coerce")

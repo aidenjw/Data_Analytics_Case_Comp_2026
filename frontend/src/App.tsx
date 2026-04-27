@@ -150,7 +150,7 @@ function App() {
               <Filter size={15} /> {filterCount} active filters
             </span>
             <span>
-              <Database size={15} /> {metadata.data ? formatCount(metadata.data.stats.sector_rows) : "116,561"} source
+              <Database size={15} /> {metadata.data ? formatCount(metadata.data.stats.sector_rows) : "116,558"} source
               rows
             </span>
             {isLoading ? <span className="pulse">Refreshing panels</span> : null}

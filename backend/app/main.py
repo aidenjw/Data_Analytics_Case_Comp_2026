@@ -105,7 +105,7 @@ def metadata() -> dict:
         ],
         "stats": stats,
         "dataNotes": [
-            "The workbook contains 2020, 2021, 2022, 2023, and a few aggregate 2020-2023 rows.",
+            "The dashboard excludes aggregate 2020-2023 rows and only shows discrete annual records.",
             "Global KPIs use project-safe estimates to reduce duplicate sector-split inflation.",
             "Sector breakdowns use the source sector-row grain so multi-sector projects remain visible.",
             "Marker fields include null values for non-screened projects.",

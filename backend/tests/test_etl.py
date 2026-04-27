@@ -4,7 +4,13 @@ from backend.app.db import connect
 def test_fact_table_preserves_source_rows() -> None:
     with connect() as con:
         count = con.execute("SELECT COUNT(*) FROM fact_activity_sector").fetchone()[0]
-    assert count == 116_561
+    assert count == 116_558
+
+
+def test_aggregate_year_rows_are_excluded() -> None:
+    with connect() as con:
+        count = con.execute("SELECT COUNT(*) FROM fact_activity_sector WHERE year = '2020-2023'").fetchone()[0]
+    assert count == 0
 
 
 def test_row_id_is_not_primary_key() -> None:

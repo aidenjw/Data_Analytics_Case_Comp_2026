@@ -45,5 +45,6 @@ npm run build:frontend
 
 - Primary metric: `usd_disbursements_defl`, shown as USD millions in 2023 constant dollars.
 - Secondary metric: `usd_commitment_defl`, which has substantial missingness in the source workbook.
+- Aggregate `2020-2023` rows are filtered out during ETL so the dashboard only compares discrete years.
 - The workbook row grain is sector-level activity. Some projects repeat across sector rows, so headline KPIs use project-safe estimates while sector panels preserve source row detail.
 - `row_id` is not treated as a primary key by itself; project-level grouping uses a composite hash of row id, organization, and year, with source-row fallback for missing row ids.

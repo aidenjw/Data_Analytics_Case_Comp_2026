@@ -494,15 +494,31 @@ h1 {
   position: relative;
   display: grid;
   gap: 0.7rem;
-  min-height: 330px;
+  min-height: 390px;
 }
 
-.map-wrap svg {
-  width: 100%;
-  height: auto;
-  background: #09272d;
+.geo-map-shell {
+  position: relative;
+  min-height: 360px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(9, 39, 45, 0.94), rgba(7, 30, 35, 0.98)),
+    #09272d;
   border: 1px solid var(--line);
   border-radius: var(--radius);
+}
+
+.map-wrap canvas {
+  cursor: grab;
+}
+
+.map-wrap canvas:active {
+  cursor: grabbing;
+}
+
+.map-wrap svg,
+.geo-map-shell {
+  width: 100%;
 }
 
 .map-caption {
@@ -515,6 +531,22 @@ h1 {
   background: rgba(5, 22, 26, 0.78);
   border: 1px solid var(--line);
   border-radius: 6px;
+  pointer-events: none;
+}
+
+.map-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.map-meta span {
+  padding: 0.38rem 0.52rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  border-radius: 999px;
 }
 
 .map-fallback-list {
@@ -533,6 +565,16 @@ h1 {
   background: #0b2a30;
   border: 1px solid var(--line);
   border-radius: 6px;
+}
+
+.map-fallback-list button.active {
+  color: #052326;
+  background: var(--accent);
+  border-color: rgba(248, 255, 247, 0.6);
+}
+
+.map-fallback-list button.active span {
+  color: #052326;
 }
 
 .map-fallback-list span {

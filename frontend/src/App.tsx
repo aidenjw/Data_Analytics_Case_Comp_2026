@@ -31,6 +31,7 @@ function App() {
 
   const summary = dashboard.summary.data;
   const mapItems = dashboard.geography.data?.items ?? [];
+  const selectableMapItems = dashboard.selectableGeography.data?.items ?? mapItems;
   const donorItems = dashboard.donors.data?.items ?? [];
   const recipientItems = dashboard.recipients.data?.items ?? [];
   const sectorItems = dashboard.sectors.data?.items ?? [];
@@ -39,6 +40,7 @@ function App() {
   const isLoading =
     metadata.isLoading ||
     dashboard.summary.isLoading ||
+    dashboard.selectableGeography.isLoading ||
     dashboard.donors.isLoading ||
     dashboard.recipients.isLoading ||
     dashboard.sectors.isLoading;
@@ -46,6 +48,7 @@ function App() {
     metadata.error ||
     dashboard.summary.error ||
     dashboard.geography.error ||
+    dashboard.selectableGeography.error ||
     dashboard.donors.error ||
     dashboard.recipients.error ||
     dashboard.sectors.error ||
@@ -176,7 +179,8 @@ function App() {
             <Overview
               filters={filters}
               summary={summary}
-              mapItems={mapItems}
+              mapItems={selectableMapItems}
+              selectedRecipientCountries={filters.recipientCountries}
               donorItems={donorItems}
               recipientItems={recipientItems}
               sectorItems={sectorItems}
@@ -197,7 +201,8 @@ function App() {
               <Panel title="Recipient funding map" wide>
                 <Suspense fallback={<PanelSkeleton />}>
                   <WorldFundingMap
-                    items={mapItems}
+                    items={selectableMapItems}
+                    selectedCountries={filters.recipientCountries}
                     onSelectCountry={(country) =>
                       startTransition(() => dispatch({ type: "toggle", key: "recipientCountries", value: country }))
                     }
@@ -266,6 +271,7 @@ function App() {
 function Overview({
   summary,
   mapItems,
+  selectedRecipientCountries,
   donorItems,
   recipientItems,
   sectorItems,
@@ -278,6 +284,7 @@ function Overview({
   filters: DashboardFilters;
   summary?: { yearSeries: Array<{ year: string; amount: number }> };
   mapItems: Array<{ country: string; amount: number; region_macro: string }>;
+  selectedRecipientCountries: string[];
   donorItems: RankingItem[];
   recipientItems: RankingItem[];
   sectorItems: RankingItem[];
@@ -315,7 +322,11 @@ function Overview({
       <section className="panel-grid three-col">
         <Panel title="Recipient geography">
           <Suspense fallback={<PanelSkeleton />}>
-            <WorldFundingMap items={mapItems} onSelectCountry={onRecipientClick} />
+            <WorldFundingMap
+              items={mapItems}
+              selectedCountries={selectedRecipientCountries}
+              onSelectCountry={onRecipientClick}
+            />
           </Suspense>
         </Panel>
         <Panel title="Top donors">

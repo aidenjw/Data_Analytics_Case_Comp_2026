@@ -29,6 +29,10 @@ export function useMetadata() {
 export function useDashboardData(filters: DashboardFilters) {
   const summary = usePost<Summary>("/summary", filters);
   const geography = usePost<{ items: GeographyItem[] }>("/geography", filters);
+  const selectableGeography = usePost<{ items: GeographyItem[] }>("/geography", {
+    ...filters,
+    recipientCountries: [],
+  });
   const donors = usePost<RankingResponse>("/rankings", {
     ...filters,
     groupBy: "organization_name",
@@ -53,7 +57,7 @@ export function useDashboardData(filters: DashboardFilters) {
     offset: 0,
   });
 
-  return { summary, geography, donors, recipients, sectors, projects };
+  return { summary, geography, selectableGeography, donors, recipients, sectors, projects };
 }
 
 export function generatePromptChart(prompt: string, baseFilters: DashboardFilters) {

@@ -74,13 +74,15 @@ input:focus-visible {
 }
 
 .brand-mark {
-  display: grid;
-  width: 44px;
-  height: 44px;
-  place-items: center;
-  color: #062326;
-  background: var(--accent);
-  border-radius: var(--radius);
+  flex: 0 0 auto;
+  width: 62px;
+  height: 62px;
+}
+
+.brand-mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .eyebrow {

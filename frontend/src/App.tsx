@@ -1,5 +1,5 @@
 import { lazy, Suspense, useDeferredValue, useMemo, useReducer, useState, useTransition } from "react";
-import { AlertCircle, Database, Filter, Globe2, RotateCcw } from "lucide-react";
+import { AlertCircle, Database, Filter, RotateCcw } from "lucide-react";
 
 import { emptyFilters } from "./api/client";
 import { useDashboardData, useMetadata } from "./api/hooks";
@@ -18,6 +18,70 @@ const WorldFundingMap = lazy(() => import("./components/maps/WorldFundingMap"));
 
 const tabs = ["Overview", "Geography", "Sectors", "Donors", "Projects", "Custom", "Methodology"] as const;
 type Tab = (typeof tabs)[number];
+
+function BrandLogo() {
+  return (
+    <svg viewBox="0 0 128 128" role="img" aria-label="Global Funding Explorer logo">
+      <defs>
+        <linearGradient id="globeGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#1cc0aa" />
+          <stop offset="100%" stopColor="#4a90e2" />
+        </linearGradient>
+        <linearGradient id="barGradientA" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stopColor="#13b99f" />
+          <stop offset="100%" stopColor="#1d9ed9" />
+        </linearGradient>
+        <linearGradient id="barGradientB" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stopColor="#0f7ccf" />
+          <stop offset="100%" stopColor="#1656b6" />
+        </linearGradient>
+        <linearGradient id="barGradientC" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stopColor="#5b3db6" />
+          <stop offset="100%" stopColor="#6937c8" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M29 63a36 36 0 0 1 58-28"
+        fill="none"
+        stroke="#0a2f6f"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+      <circle cx="54" cy="57" r="29" fill="url(#globeGradient)" />
+      <path
+        d="M44 35c3-3 7-5 11-6-2 3-4 4-3 7 5-3 7-1 12-2-2 3-4 4-3 7 4 0 7 2 10 4-4 1-7 0-9 2 2 2 6 3 7 6-2 0-3 1-5 2 2 4 5 8 5 13-2-2-4-5-6-5-2 0-3 3-5 4-2 6-2 12-3 18-2-4-3-8-3-13-2-2-4-5-7-6-3 2-3 7-5 10-1-4-1-8 0-12-2-3-5-4-7-6 3-2 7-2 8-6-2-1-5-2-6-5 3-1 5-3 7-6-2-2-5-3-6-6z"
+        fill="#ffffff"
+        opacity="0.95"
+      />
+      <rect x="74" y="60" width="8" height="18" rx="1" fill="url(#barGradientA)" />
+      <rect x="85" y="53" width="8" height="25" rx="1" fill="url(#barGradientB)" />
+      <rect x="96" y="42" width="8" height="36" rx="1" fill="url(#barGradientC)" />
+      <path
+        d="M84 83c0-4-3-7-7-7s-7 3-7 7v3h14zm-20 0c0-5-4-9-9-9s-9 4-9 9v3h18zm-24 0c0-4-3-7-7-7s-7 3-7 7v3h14z"
+        fill="#ffffff"
+      />
+      <circle cx="77" cy="71" r="4.5" fill="#5c3db4" />
+      <circle cx="55" cy="68" r="5.4" fill="#173f86" />
+      <circle cx="33" cy="73" r="4.5" fill="#17b39f" />
+      <path
+        d="M28 87c6-5 16-7 29-7 15 0 28 4 37 11 5 4 10 3 16-2-3 9-9 15-18 17-13 3-36 1-50-2-12-2-24-8-31-17 6 2 11 2 17 0z"
+        fill="#09275f"
+      />
+      <path
+        d="M73 24c15 0 29 6 39 17"
+        fill="none"
+        stroke="#0f7ccf"
+        strokeWidth="2.2"
+        strokeDasharray="2.2 4.2"
+        strokeLinecap="round"
+      />
+      <circle cx="72" cy="24" r="2.3" fill="#18b6a4" />
+      <circle cx="84" cy="29" r="2.3" fill="#1656b6" />
+      <circle cx="97" cy="36" r="2.3" fill="#5c3db4" />
+      <circle cx="108" cy="46" r="2.3" fill="#4838aa" />
+    </svg>
+  );
+}
 
 function App() {
   const [filters, dispatch] = useReducer(filterReducer, emptyFilters);
@@ -101,7 +165,7 @@ function App() {
       <header className="topbar">
         <div className="brand-lockup">
           <div className="brand-mark" aria-hidden="true">
-            <Globe2 size={24} />
+            <BrandLogo />
           </div>
           <div>
             <p className="eyebrow">OECD private philanthropy for development</p>

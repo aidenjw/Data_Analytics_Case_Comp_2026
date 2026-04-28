@@ -2,6 +2,10 @@
 
 Local full-stack dashboard for exploring OECD private philanthropy funding patterns across geography, sectors, donors, recipients, and timing.
 
+## Demo video
+
+[Watch the project demo](./docs/case_comp_demo.mp4)
+
 ## What is included
 
 - `backend/`: FastAPI API, DuckDB warehouse queries, ETL, and backend tests.
